@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 from fastapi.testclient import TestClient
+import pymupdf
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -14,16 +15,28 @@ if str(ROOT) not in sys.path:
 from backend.app.main import create_app
 
 
+def create_test_pdf(path: Path) -> None:
+    document = pymupdf.open()
+    page = document.new_page(width=400, height=220)
+    shape = page.new_shape()
+    shape.draw_rect(pymupdf.Rect(40, 50, 360, 170))
+    shape.finish(color=(0, 0, 0), fill=(0, 0, 0))
+    shape.commit()
+    document.save(path)
+    document.close()
+
+
 def test_process_sample_pdf(tmp_path: Path) -> None:
     app = create_app(data_dir=tmp_path / "jobs", job_ttl=timedelta(hours=1))
     client = TestClient(app)
 
-    sample_path = ROOT / "backend" / "tests" / "fixtures" / "sample.pdf"
+    sample_path = tmp_path / "generated.pdf"
+    create_test_pdf(sample_path)
     with sample_path.open("rb") as handle:
         response = client.post(
             "/api/jobs",
             files={"file": ("sample.pdf", handle, "application/pdf")},
-            data={"dpi": "150"},
+            data={"dpi": "150", "wrapper_groups": "0"},
         )
 
     assert response.status_code == 202
