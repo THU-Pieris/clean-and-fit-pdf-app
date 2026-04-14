@@ -1,152 +1,139 @@
-# Clean And Fit PDF App
+# Clean and Fit PDF
 
-Windows desktop app and Python tooling for cleaning a one-page vector PDF, removing outer wrapper groups, measuring the painted content, and rewriting the page to an exact-fit size.
+Web-based PDF cleanup tool built around the original Python processing pipeline.
 
-The project supports two ways of running:
+This repo ships as:
 
-- As a portable Windows executable: `dist\CleanAndFitPdf.exe`
-- From source: `clean_and_fit_pdf_app.pyw` or `clean_and_fit_pdf.py`
+- a Docker-friendly FastAPI backend
+- a browser frontend served by Nginx
+- the original Python PDF-processing engine, reused as the domain layer
 
 ## What It Does
 
-This project is aimed at PDFs such as exported plots, diagrams, or figures where the visible content is surrounded by redundant wrapper groups and excess page margins.
-
-The processing pipeline does this:
+The processing pipeline:
 
 1. Opens a selected PDF page.
 2. Removes the first configurable number of nested wrapper drawing groups.
-3. Renders the cleaned page to an image using the built-in `PyMuPDF` renderer.
+3. Renders the cleaned page to an image with `PyMuPDF`.
 4. Measures the non-white content bounds.
 5. Rewrites the PDF page so the page size tightly fits the content.
-6. Optionally runs an Acrobat-friendly rewrite using `pikepdf`.
+6. Optionally runs an Acrobat-friendly rewrite with `pikepdf`.
 
-The output stays vector-based.
+The output remains vector-based.
 
-## Project Files
+## Architecture
 
-- `clean_and_fit_pdf.py`: core processing logic and CLI
-- `clean_and_fit_pdf_app.pyw`: Tkinter desktop app
-- `repair_pdf_for_acrobat.py`: standalone wrapper for the Acrobat-fix stage
-- `start_clean_and_fit_pdf_app.cmd`: launches the packaged EXE if present, otherwise launches the source app
-- `build_clean_and_fit_pdf_app.cmd`: creates a one-file portable EXE
-- `requirements.txt`: runtime Python dependencies
-- `requirements-build.txt`: build-time dependencies
+### Core Processing
 
-## Quick Start
+- `clean_and_fit_pdf.py`: processing engine and CLI
+- `repair_pdf_for_acrobat.py`: standalone Acrobat-fix wrapper
 
-### Option 1: Run The Portable App
+### Backend
 
-If `dist\CleanAndFitPdf.exe` exists, just run it directly.
+- `backend/app/main.py`: FastAPI entry point
+- `backend/app/jobs.py`: background job runner and job state storage
+- `backend/app/schemas.py`: API response models
 
-You can also use:
+Backend API endpoints:
 
-```bat
-start_clean_and_fit_pdf_app.cmd
-```
+- `GET /api/health`
+- `POST /api/jobs`
+- `GET /api/jobs/{job_id}`
+- `GET /api/jobs/{job_id}/download`
+- `GET /api/jobs/{job_id}/artifacts/{artifact_name}`
 
-That launcher prefers the packaged EXE when it exists.
+### Frontend
 
-### Option 2: Run From Source
+- `frontend/index.html`: browser UI
+- `frontend/app.js`: upload, polling, and download logic
+- `frontend/styles.css`: app styling
+- `frontend/nginx.conf`: static hosting plus `/api` reverse proxy to backend
 
-Install Python 3.11, then from this folder run:
-
-```bat
-py -3.11 -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe clean_and_fit_pdf_app.pyw
-```
-
-For the command-line workflow:
-
-```bat
-.venv\Scripts\python.exe clean_and_fit_pdf.py input.pdf
-```
-
-## Building The Portable EXE
-
-The build script bootstraps its own local build environment in `.venv-build`, installs the required packages, and creates a single-file Windows executable with PyInstaller.
-
-Run:
-
-```bat
-build_clean_and_fit_pdf_app.cmd
-```
+## Run With Docker
 
 Requirements:
 
-- Windows
-- Python 3.11 installed and available through `py -3.11`
+- Docker
+- Docker Compose
 
-Build output:
+Start the stack:
 
-```text
-dist\CleanAndFitPdf.exe
+```bash
+docker compose up --build
 ```
 
-The packaged EXE includes:
+Open:
 
-- its own Python runtime
-- `pypdf`
-- `Pillow`
-- `PyMuPDF`
-- `pikepdf`
+- Frontend: `http://localhost:8091`
+- Backend API docs: `http://localhost:8000/docs`
 
-It does not require a separate Python installation on the target machine.
+The frontend proxies `/api` requests to the backend container, so the browser
+only needs the frontend URL during normal use.
 
-## Desktop App Notes
+## Local Backend Development
 
-The desktop app lets you:
+Run the backend directly without Docker:
 
-- choose an input PDF
-- choose an output PDF
-- set page number, wrapper-group count, padding, DPI, and Acrobat-fix options
-- watch progress in a log window
-- open the output folder after processing
-
-The app runs the processing job in a background thread so the window stays responsive.
-
-## Command-Line Usage
-
-Basic example:
-
-```bat
-py -3.11 clean_and_fit_pdf.py figure.pdf
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r backend/requirements-dev.txt
+uvicorn backend.app.main:app --reload
 ```
 
-Example with explicit options:
+Then open the frontend through Docker, Nginx, or any static server that proxies
+`/api` to `http://localhost:8000`.
 
-```bat
-py -3.11 clean_and_fit_pdf.py figure.pdf ^
-  -o figure.cleaned.pdf ^
-  --page 1 ^
-  --wrapper-groups 2 ^
-  --padding 0 ^
-  --dpi 1200 ^
-  --linearize
+## Using The Web App
+
+1. Open the frontend in your browser.
+2. Upload a PDF.
+3. Adjust page number, wrapper-group count, padding, DPI, and Acrobat options.
+4. Start the job.
+5. Watch the progress log.
+6. Download the fitted PDF when the job completes.
+
+If you enable `Keep intermediate debug files`, the UI also exposes download links
+for the cleaned intermediate PDF, the fitted intermediate PDF, and the
+measurement PNG.
+
+## API Example
+
+Submit a job:
+
+```bash
+curl -X POST http://localhost:8000/api/jobs \
+  -F "file=@backend/tests/fixtures/sample.pdf" \
+  -F "dpi=150"
 ```
 
-To skip the Acrobat-fix stage:
+Poll status:
 
-```bat
-py -3.11 clean_and_fit_pdf.py figure.pdf --no-acrobat-fix
+```bash
+curl http://localhost:8000/api/jobs/<job_id>
 ```
 
-## Git Repo Setup
+Download the result:
 
-This folder is ready to become its own repository.
-
-Typical setup:
-
-```bat
-git init
-git add .
-git commit -m "Initial import"
+```bash
+curl -L http://localhost:8000/api/jobs/<job_id>/download -o output.pdf
 ```
 
-The included `.gitignore` excludes local build products, virtual environments, temporary files, and generated PDFs.
+## Tests
+
+Run the backend smoke test with the included fixture PDF:
+
+```bash
+pytest backend/tests
+```
+
+The test submits `backend/tests/fixtures/sample.pdf`, waits for the background
+job to finish, and checks that the API returns a valid PDF.
 
 ## Notes
 
-- The renderer is built in through `PyMuPDF`, so no external `pdftoppm.exe` is required for normal use.
-- The optional Acrobat compatibility stage depends on `pikepdf`.
-- The current implementation is intended for one-page vector PDFs and plot-like exports.
+- The current implementation is still aimed at one-page vector PDFs and
+  plot-like exports.
+- Backend job state is stored on disk under `backend/data/`.
+- Completed jobs are cleaned up automatically after the configured TTL
+  (`JOB_TTL_HOURS`, default `24`).

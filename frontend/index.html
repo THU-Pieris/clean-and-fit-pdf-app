@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clean and Fit PDF</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero card">
+        <div>
+          <p class="eyebrow">PDF Cleanup Workflow</p>
+          <h1>Clean and Fit PDF</h1>
+          <p class="hero-copy">
+            Upload a one-page vector PDF, strip its outer wrapper groups, measure
+            the painted bounds, and download an exact-fit result from the browser.
+          </p>
+        </div>
+        <div class="hero-status">
+          <span id="api-status" class="badge badge-muted">Checking backend</span>
+          <p class="hero-note">
+            The web app keeps the original Python processor and moves only the UI
+            and packaging into Docker-friendly services.
+          </p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="card form-card">
+          <div class="section-head">
+            <p class="eyebrow">Job Setup</p>
+            <h2>Processing Options</h2>
+          </div>
+
+          <form id="job-form">
+            <fieldset id="job-fields">
+              <div class="field">
+                <label for="file">Input PDF</label>
+                <input id="file" name="file" type="file" accept=".pdf,application/pdf" required />
+              </div>
+
+              <div class="grid two-up">
+                <div class="field">
+                  <label for="page">Page</label>
+                  <input id="page" name="page" type="number" min="1" step="1" value="1" />
+                </div>
+                <div class="field">
+                  <label for="wrapper_groups">Wrapper Groups</label>
+                  <input
+                    id="wrapper_groups"
+                    name="wrapper_groups"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value="2"
+                  />
+                </div>
+              </div>
+
+              <div class="grid two-up">
+                <div class="field">
+                  <label for="padding">Padding (pt)</label>
+                  <input id="padding" name="padding" type="number" min="0" step="0.1" value="0" />
+                </div>
+                <div class="field">
+                  <label for="dpi">DPI</label>
+                  <input id="dpi" name="dpi" type="number" min="1" step="1" value="1200" />
+                </div>
+              </div>
+
+              <div class="grid two-up">
+                <div class="field">
+                  <label for="precision">Precision</label>
+                  <input id="precision" name="precision" type="number" min="0" step="1" value="6" />
+                </div>
+                <div class="field">
+                  <label for="object_streams">Object Streams</label>
+                  <select id="object_streams" name="object_streams">
+                    <option value="disable" selected>disable</option>
+                    <option value="preserve">preserve</option>
+                    <option value="generate">generate</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="checks">
+                <label class="check">
+                  <input id="acrobat_fix" name="acrobat_fix" type="checkbox" checked />
+                  <span>Apply Acrobat compatibility rewrite</span>
+                </label>
+                <label class="check">
+                  <input id="linearize" name="linearize" type="checkbox" />
+                  <span>Linearize final PDF</span>
+                </label>
+                <label class="check">
+                  <input id="keep_temp" name="keep_temp" type="checkbox" />
+                  <span>Keep intermediate debug files</span>
+                </label>
+              </div>
+
+              <div class="actions">
+                <button id="submit-button" type="submit">Start Job</button>
+                <p id="submit-hint" class="hint">
+                  The browser stays responsive while the backend runs the PDF job.
+                </p>
+              </div>
+            </fieldset>
+          </form>
+        </section>
+
+        <section class="card status-card">
+          <div class="section-head">
+            <p class="eyebrow">Run Status</p>
+            <h2>Latest Job</h2>
+          </div>
+
+          <div class="status-banner">
+            <span id="job-status" class="badge badge-muted">Idle</span>
+            <p id="job-meta" class="status-meta">Choose a PDF and start a job.</p>
+          </div>
+
+          <div class="result-panel">
+            <div class="result-actions">
+              <a id="download-link" class="button-link is-disabled" href="#" aria-disabled="true">
+                Download Output
+              </a>
+            </div>
+
+            <div>
+              <h3>Summary</h3>
+              <ul id="summary-list" class="summary-list">
+                <li>No completed job yet.</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3>Artifacts</h3>
+              <ul id="artifact-list" class="summary-list">
+                <li>Intermediate files will appear here when enabled.</li>
+              </ul>
+            </div>
+
+            <div>
+              <div class="log-head">
+                <h3>Progress Log</h3>
+                <button id="clear-log" type="button" class="ghost-button">Clear</button>
+              </div>
+              <pre id="log-output" class="log-output">Waiting for a job.</pre>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
