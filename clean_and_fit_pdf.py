@@ -2,7 +2,7 @@
 """Remove leading wrapper groups from a PDF page and fit the page to content.
 
 This module keeps the original CLI workflow intact and also exposes a reusable
-``process_pdf`` function so it can be wrapped by a desktop GUI.
+``process_pdf`` function so it can be wrapped by a web API or other interface.
 """
 
 from __future__ import annotations
