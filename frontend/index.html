@@ -10,26 +10,16 @@
     <div class="page-shell">
       <header class="hero card">
         <div>
-          <p class="eyebrow">PDF Cleanup Workflow</p>
           <h1>Clean and Fit PDF</h1>
-          <p class="hero-copy">
-            Upload a one-page vector PDF, strip its outer wrapper groups, measure
-            the painted bounds, and download an exact-fit result from the browser.
-          </p>
         </div>
         <div class="hero-status">
           <span id="api-status" class="badge badge-muted">Checking backend</span>
-          <p class="hero-note">
-            The web app keeps the original Python processor and moves only the UI
-            and packaging into Docker-friendly services.
-          </p>
         </div>
       </header>
 
       <main class="layout">
         <section class="card form-card">
           <div class="section-head">
-            <p class="eyebrow">Job Setup</p>
             <h2>Processing Options</h2>
           </div>
 
@@ -101,9 +91,6 @@
 
               <div class="actions">
                 <button id="submit-button" type="submit">Start Job</button>
-                <p id="submit-hint" class="hint">
-                  The browser stays responsive while the backend runs the PDF job.
-                </p>
               </div>
             </fieldset>
           </form>
@@ -111,13 +98,12 @@
 
         <section class="card status-card">
           <div class="section-head">
-            <p class="eyebrow">Run Status</p>
             <h2>Latest Job</h2>
           </div>
 
           <div class="status-banner">
             <span id="job-status" class="badge badge-muted">Idle</span>
-            <p id="job-meta" class="status-meta">Choose a PDF and start a job.</p>
+            <p id="job-meta" class="status-meta">Ready.</p>
           </div>
 
           <div class="result-panel">
@@ -130,14 +116,14 @@
             <div>
               <h3>Summary</h3>
               <ul id="summary-list" class="summary-list">
-                <li>No completed job yet.</li>
+                <li>None.</li>
               </ul>
             </div>
 
             <div>
               <h3>Artifacts</h3>
               <ul id="artifact-list" class="summary-list">
-                <li>Intermediate files will appear here when enabled.</li>
+                <li>None.</li>
               </ul>
             </div>
 
@@ -146,7 +132,7 @@
                 <h3>Progress Log</h3>
                 <button id="clear-log" type="button" class="ghost-button">Clear</button>
               </div>
-              <pre id="log-output" class="log-output">Waiting for a job.</pre>
+              <pre id="log-output" class="log-output">Ready.</pre>
             </div>
           </div>
         </section>

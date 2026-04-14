@@ -154,7 +154,7 @@ function startPolling(jobId) {
           artifactList,
           artifactEntries.length > 0
             ? artifactEntries
-            : ["No intermediate files were saved for this run."],
+            : ["None."],
         );
         return;
       }
@@ -162,7 +162,7 @@ function startPolling(jobId) {
       setBadge(jobStatus, "Failed", "badge-failed");
       resetDownloadLink();
       renderList(summaryList, [payload.error || "The job failed."]);
-      renderList(artifactList, ["No artifacts available."]);
+      renderList(artifactList, ["None."]);
     } catch (error) {
       setBadge(jobStatus, "Connection Error", "badge-failed");
       jobMeta.textContent = error.message;
@@ -178,10 +178,10 @@ form.addEventListener("submit", async (event) => {
   stopPolling();
   resetDownloadLink();
   renderList(summaryList, ["Submitting job..."]);
-  renderList(artifactList, ["Intermediate files will appear here when enabled."]);
+  renderList(artifactList, ["None."]);
   logOutput.textContent = "Creating job...";
   setBadge(jobStatus, "Submitting", "badge-running");
-  jobMeta.textContent = "Uploading file and sending settings to the backend.";
+  jobMeta.textContent = "Uploading...";
 
   try {
     const formData = buildJobFormData();
@@ -204,13 +204,13 @@ form.addEventListener("submit", async (event) => {
     setBadge(jobStatus, "Failed", "badge-failed");
     jobMeta.textContent = error.message;
     renderList(summaryList, [error.message]);
-    renderList(artifactList, ["No artifacts available."]);
+    renderList(artifactList, ["None."]);
     logOutput.textContent = `Request failed.\n${error.message}`;
   }
 });
 
 clearLogButton.addEventListener("click", () => {
-  logOutput.textContent = "Waiting for a job.";
+  logOutput.textContent = "Ready.";
 });
 
 checkApiHealth();
