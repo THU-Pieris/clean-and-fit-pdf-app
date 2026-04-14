@@ -103,7 +103,7 @@ Submit a job:
 
 ```bash
 curl -X POST http://localhost:8000/api/jobs \
-  -F "file=@backend/tests/fixtures/sample.pdf" \
+  -F "file=@your-file.pdf" \
   -F "dpi=150"
 ```
 
@@ -121,14 +121,14 @@ curl -L http://localhost:8000/api/jobs/<job_id>/download -o output.pdf
 
 ## Tests
 
-Run the backend smoke test with the included fixture PDF:
+Run the backend smoke test:
 
 ```bash
 pytest backend/tests
 ```
 
-The test submits `backend/tests/fixtures/sample.pdf`, waits for the background
-job to finish, and checks that the API returns a valid PDF.
+The test generates a temporary vector PDF, submits it through the API, and
+checks that the response returns a valid PDF.
 
 ## Notes
 
