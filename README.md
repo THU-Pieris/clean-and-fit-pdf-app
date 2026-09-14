@@ -70,6 +70,18 @@ Open:
 The frontend proxies `/api` requests to the backend container, so the browser
 only needs the frontend URL during normal use.
 
+After pulling frontend changes, rebuild and recreate the frontend container:
+
+```bash
+docker compose up -d --build --no-deps frontend
+```
+
+The image contains a snapshot of the frontend files; Git updates do not change
+an already running container. During the image build, CSS and JavaScript receive
+content-hashed filenames and the HTML is updated to reference them. Nginx asks
+browsers to revalidate HTML while allowing immutable caching of hashed assets,
+so a new release does not reuse an old stylesheet or script.
+
 ## Local Backend Development
 
 Run the backend directly without Docker:
@@ -133,6 +145,16 @@ pytest backend/tests
 
 The test generates a temporary vector PDF, submits it through the API, and
 checks that the response returns a valid PDF.
+
+Check the built frontend's asset URLs, content hashes, MIME types, and cache
+headers against the running container (standard library only):
+
+```bash
+python3 -m unittest discover -s frontend/tests -v
+```
+
+Set `FRONTEND_URL` to check a different origin, including the public URL behind
+a reverse proxy or Cloudflare Tunnel.
 
 ## Notes
 
