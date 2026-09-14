@@ -87,13 +87,17 @@ Then open the frontend through Docker, Nginx, or any static server that proxies
 ## Using The Web App
 
 1. Open the frontend in your browser.
-2. Upload a PDF.
-3. Adjust page number, wrapper-group count, padding, DPI, and Acrobat options.
-4. Start the job.
-5. Watch the progress log.
-6. Download the fitted PDF when the job completes.
+2. Drop a PDF into the source area or browse for a file (up to 64 MB).
+3. Set the page, edge padding, and wrapper-group count. Open **Advanced settings**
+   for measurement DPI, precision, object streams, web optimization, and debug files.
+4. Select **Clean & fit PDF**.
+5. Follow the job status, or expand **Processing details** for the full log.
+6. Download the fitted PDF and review its page dimensions and file size.
 
-If you enable `Keep intermediate debug files`, the UI also exposes download links
+If the connection drops while checking progress, use **Reconnect to job** to
+resume checking the existing job without uploading the document again.
+
+If you enable **Keep intermediate files**, the UI also exposes download links
 for the cleaned intermediate PDF, the fitted intermediate PDF, and the
 measurement PNG.
 
