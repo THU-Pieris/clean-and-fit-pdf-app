@@ -870,9 +870,12 @@ fieldset:disabled select {
   font-size: 0.75rem;
   color: var(--muted);
 }
-.page-footer span span {
-  margin: 0 0.5rem;
-  color: #b6c0cd;
+.page-footer a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+.page-footer a:hover {
+  color: var(--blue);
 }
 .noscript {
   padding: 1.5rem;
