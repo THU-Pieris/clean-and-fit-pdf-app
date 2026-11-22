@@ -4,8 +4,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    # 不对外映射端口：前端 nginx 通过 compose 内部网络访问 backend:8000
     volumes:
       - backend_data:/app/backend/data
 
@@ -17,7 +16,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "8091:8080"
+      - "127.0.0.1:8091:8080"  # 只监听本机，由 Cloudflare Tunnel 对外提供
 
 volumes:
   backend_data:
